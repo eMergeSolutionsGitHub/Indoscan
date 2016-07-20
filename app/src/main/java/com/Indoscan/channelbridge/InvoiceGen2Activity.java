@@ -144,6 +144,7 @@ public class InvoiceGen2Activity extends Activity {
     Button btncreditAllow;
 
     boolean manualFreeEnable;
+
     //  double discountValue = 0.0;
     /* (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -355,8 +356,9 @@ public class InvoiceGen2Activity extends Activity {
                     customersObject.openReadableDatabase();
 
                     if (customersObject.getCustomerBlockStatesByPharmacyId(pharmacyId).equals("0")) {
-
+                        showDialogSendMessage(InvoiceGen2Activity.this, 4);
                     } else {
+
                         showDialogSendMessage(InvoiceGen2Activity.this, 2);
                     }
 
@@ -1082,7 +1084,7 @@ public class InvoiceGen2Activity extends Activity {
         selectedBankIndex = extras.getInt("selectedBankIndex");
         startTime = extras.getString("startTime");
 
-        manualFreeEnable=extras.getBoolean("ManualFreeEnable");
+        manualFreeEnable = extras.getBoolean("ManualFreeEnable");
         //On Log.i("time gen2 -e->",startTime);
         if (extras.containsKey("Cash")) {
             cash = extras.getString("Cash");
@@ -1591,7 +1593,6 @@ public class InvoiceGen2Activity extends Activity {
         } else {
             btnSende.setEnabled(false);
             //  edtCode.setEnabled(true);
-
         }
 
         if (status == 1) {
@@ -1605,6 +1606,10 @@ public class InvoiceGen2Activity extends Activity {
         } else if (status == 3) {
             reason = "block customer";
             txtMessage.setText(cusName + ",is Block .Do you want to send for approval and proceed ?");
+
+        }else if (status == 4) {
+            reason = "Credit allowed";
+            txtMessage.setText(cusName + ",CMMMMM Credits are not allowed .Do you want to send for approval and proceed ?");
 
         }
 
@@ -1706,6 +1711,8 @@ public class InvoiceGen2Activity extends Activity {
                     } else if (status == 2 || status == 3) {
                         creditAllowd = true;
                         txtCredit.setEnabled(true);
+                    }else if(status == 4){
+                        txtCredit.setEnabled(false);
                     }
 
 
