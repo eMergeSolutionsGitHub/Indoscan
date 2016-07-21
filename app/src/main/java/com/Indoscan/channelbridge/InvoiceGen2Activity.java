@@ -1685,7 +1685,6 @@ public class InvoiceGen2Activity extends Activity {
             @Override
             public void onClick(View view) {
 
-
                 if (edtCode.getText().toString().isEmpty()) {
                     showErrorMessage("Code is empty,please try again");
 
@@ -1706,11 +1705,13 @@ public class InvoiceGen2Activity extends Activity {
                     }
 
                     if (status == 1) {
-                        chequDilaog();
+                        //chequDilaog(); // Chamal
                         chequeAllowed = true;
+                        iBtnChequeDetails.setEnabled(false);// Chamal
                     } else if (status == 2 || status == 3) {
                         creditAllowd = true;
                         txtCredit.setEnabled(true);
+                        iBtnChequeDetails.setEnabled(false);// Chamal
                     }else if(status == 4){
                         txtCredit.setEnabled(false);
                     }
