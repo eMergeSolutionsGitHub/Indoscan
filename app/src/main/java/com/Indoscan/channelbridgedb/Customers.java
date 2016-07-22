@@ -915,8 +915,13 @@ public class Customers {
     public String getCustomerBlockStatesByPharmacyId(String PharmacyID) {
 
         Cursor cur = database.rawQuery("SELECT customer_blocked FROM customers where pharmacy_id ='" + PharmacyID + "' ", null);
-        cur.moveToFirst();
-        return cur.getString(0);
+        System.out.println("Chamal: "+cur.getCount());
+        if(((cur != null) && (cur.getCount() > 0))) {
+            cur.moveToFirst();
+            return cur.getString(0);
+        }else{
+            return "4";
+        }
 
     }
     //
