@@ -399,6 +399,7 @@ public class Invoice {
 
         cursor.moveToFirst();
 
+
         while (!cursor.isAfterLast()) {
             sum = cursor.getString(0);
             cursor.moveToNext();

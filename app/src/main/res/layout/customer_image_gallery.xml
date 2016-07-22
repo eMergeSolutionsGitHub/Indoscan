@@ -69,7 +69,8 @@
         <Gallery
             android:id="@+id/gCustomerImages"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"></Gallery>
+            android:layout_height="wrap_content"
+            android:visibility="visible"></Gallery>
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -31,7 +31,7 @@ public class WebService {
 
   //  public final String SOAP_ADDRESS = "http://220.247.244.22:8082/CB_Hendricks/WebServices/WebServiceChannelBridge.asmx";
 
-    public final String SOAP_ADDRESS = "http://mdistributor.mobitel.lk:8080/CB_Indoscanemerge/WebServices/WebServiceChannelBridge.asmx";
+    public final String SOAP_ADDRESS = "http://mdistributor.mobitel.lk:8080/CB_Indoscan/WebServices/WebServiceChannelBridge.asmx";
 
 
     public String GetRepStatus(int id) {
@@ -316,15 +316,14 @@ public class WebService {
 
                         if (custDetails.hasProperty("Name")) {
 
-                            if (custDetails.getProperty(
-                                    "Name").toString() != "anyType{}") {
-                                customerDetails[4] = custDetails
-                                        .getProperty("Name").toString();
+                            if (custDetails.getProperty("Name").toString() != "anyType{}") {
+                                customerDetails[4] = custDetails.getProperty("Name").toString();
                             } else {
                                 customerDetails[4] = "";
                             }
 
                         }
+                        System.out.println("himmmmmmmmmmmmmmmmmm :"+custDetails.getProperty("Name").toString());
 
                         if (custDetails.hasProperty("Address")) {
 
@@ -2250,6 +2249,8 @@ public class WebService {
                                 customerDetails[34] = "0";
                             }
                         }
+
+
                         if (custDetails.hasProperty("MaxInvoiceCount")) {//test
 
                             if (custDetails.getProperty("MaxInvoiceCount").toString() != "anyType{}") {

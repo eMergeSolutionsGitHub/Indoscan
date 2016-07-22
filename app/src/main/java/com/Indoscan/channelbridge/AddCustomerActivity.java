@@ -9,8 +9,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -23,6 +25,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
@@ -35,6 +38,8 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,6 +72,7 @@ import java.util.regex.Pattern;
 public class AddCustomerActivity extends Activity implements LocationListener {
 
     static final int DATE_DIALOG_ID = 0;
+    private static int RESULT_LOAD_IMAGE = 1;
     private static final int REQUEST_CODE_IMAGE = 2;
     static int cameraData = 0;
     boolean isImageset;
@@ -95,6 +101,9 @@ public class AddCustomerActivity extends Activity implements LocationListener {
     private int mMonth;
     private int mDay;
     AddCustomerActivity listener;
+
+    String picturePath;
+    Uri selectedImage;
 
     private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
 
@@ -476,7 +485,7 @@ public class AddCustomerActivity extends Activity implements LocationListener {
         ibtnCustomerImage.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Bundle extras = new Bundle();
+               Bundle extras = new Bundle();
                 extras.putString("customerId", customerId);
 
                 Intent startGallery = new Intent(getApplication(), CustomerImageGalleryActivity.class);
@@ -485,6 +494,11 @@ public class AddCustomerActivity extends Activity implements LocationListener {
                 // startActivityForResult(startGallery,REQUEST_CODE_IMAGE);
                 finish();
                 startActivity(startGallery);
+
+
+
+
+
 
 
             }
@@ -726,7 +740,7 @@ public class AddCustomerActivity extends Activity implements LocationListener {
      * newly added by amila
      */
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+   public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // TODO Auto-generated method stub
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -822,8 +836,7 @@ public class AddCustomerActivity extends Activity implements LocationListener {
             if (customerImageFile.exists()) {
 
                 try {
-                    ibtnCustomerImage.setImageBitmap(decodeSampledBitmapFromResource(
-                            String.valueOf(customerImageFile), 400, 550));
+                    ibtnCustomerImage.setImageBitmap(decodeSampledBitmapFromResource(String.valueOf(customerImageFile), 400, 550));
                 } catch (IllegalArgumentException e) {
                     Log.w("Illegal argument exception", e.toString());
                 } catch (OutOfMemoryError e) {

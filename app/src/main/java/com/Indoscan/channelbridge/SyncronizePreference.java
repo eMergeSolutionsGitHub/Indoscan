@@ -2318,6 +2318,13 @@ public class SyncronizePreference extends PreferenceActivity {
                         if (isAvailable) {
                             Log.w("AVAILABLE", "Customer AVAILABLE");
                             customers.openWritableDatabase();
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[30] :"+ custDetails[30]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[31] :"+ custDetails[31]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[32] :"+ custDetails[32]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[33] :"+ custDetails[33]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[34] :"+ custDetails[34]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[35] :"+ custDetails[35]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[36] :"+ custDetails[36]);
                             Long result = customers.updateCustomerDetails(
                                     custDetails[0], // pharmacyId
                                     custDetails[1], // pharmacyCode,
@@ -2370,6 +2377,13 @@ public class SyncronizePreference extends PreferenceActivity {
                         } else {
                             Log.w("UNAVAILABLE", "Customer UNAVAILABLE");
                             customers.openWritableDatabase();
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[30] :"+ custDetails[30]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[31] :"+ custDetails[31]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[32] :"+ custDetails[32]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[33] :"+ custDetails[33]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[34] :"+ custDetails[34]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[35] :"+ custDetails[35]);
+                            System.out.println("Himaaaaaaaaaaaaaaaa  custDetails[36] :"+ custDetails[36]);
                             Long result = customers.insertCustomer(
                                     custDetails[0], // pharmacyId
                                     custDetails[1], // pharmacyCode,

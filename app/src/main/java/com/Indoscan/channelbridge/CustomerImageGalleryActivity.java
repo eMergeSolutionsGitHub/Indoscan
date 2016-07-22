@@ -11,12 +11,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -24,9 +28,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Gallery;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,9 +60,12 @@ public class CustomerImageGalleryActivity extends Activity {
     private Intent customerDetailsTabWidget = new Intent("com.Indoscan.channelbridge.CUSTOMERDETAILSCOMMENTSTABWIDGET");
     private String rowId;
     boolean imageSelected;
-    public static int calculateInSampleSize(BitmapFactory.Options options,
-                                            int reqWidth, int reqHeight) {
-        // Raw height and width of image
+
+    String picturePath;
+    Uri selectedImage;
+    private static int RESULT_LOAD_IMAGE = 1;
+
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 0;
@@ -71,8 +80,7 @@ public class CustomerImageGalleryActivity extends Activity {
         return inSampleSize;
     }
 
-    public static Bitmap decodeSampledBitmapFromResource(String path,
-                                                         int reqWidth, int reqHeight) {
+    public static Bitmap decodeSampledBitmapFromResource(String path, int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -80,8 +88,7 @@ public class CustomerImageGalleryActivity extends Activity {
         BitmapFactory.decodeFile(path, options);
 
         // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth,
-                reqHeight);
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
@@ -119,6 +126,7 @@ public class CustomerImageGalleryActivity extends Activity {
             if (checkGalleryDirectory()) {
                 ArrayList<String> requiredImageIds = new ArrayList<String>();
                 requiredImageIds = getRequiredFileNames(customerId);
+
                 Log.w("RequireD IDzzz", requiredImageIds.size() + "");
                 if (!requiredImageIds.isEmpty()) {
                     setAdapter(this, requiredImageIds);
@@ -139,6 +147,7 @@ public class CustomerImageGalleryActivity extends Activity {
 
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+
                 cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(cameraIntent, cameraData);
 
@@ -185,8 +194,8 @@ public class CustomerImageGalleryActivity extends Activity {
                         }
                         finish();
                         addCustomerIntent.putExtra("imageSet", imageSelected);
-                       // setResult(Activity.RESULT_OK,addCustomerIntent);
-                       startActivity(addCustomerIntent);
+                        // setResult(Activity.RESULT_OK,addCustomerIntent);
+                        startActivity(addCustomerIntent);
 
                     } else if (previousActivity.contentEquals("NOTAddCustomerActivity")) {
 //						Intent viewCustomerIntent = new Intent(getApplication(), CustomerDetailsComments_TabWidget.class);
@@ -374,6 +383,7 @@ public class CustomerImageGalleryActivity extends Activity {
     @SuppressWarnings("static-access")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        String previousImage = null;
 
         if (resultCode == RESULT_OK) {
             ImageGallery imageGallery = new ImageGallery(this);
@@ -382,7 +392,7 @@ public class CustomerImageGalleryActivity extends Activity {
 
                 imageGallery.openReadableDatabase();
 
-                String previousImage = imageGallery.getLastImageNameForCustomer(customerId);
+                 previousImage = imageGallery.getLastImageNameForCustomer(customerId);
                 imageGallery.closeDatabase();
                 if (previousImage.contentEquals("-1")) {
                     imageId = 0;
@@ -399,8 +409,7 @@ public class CustomerImageGalleryActivity extends Activity {
             customerImage = (Bitmap) extras.get("data");
 
 
-            SharedPreferences sharedPreferences = PreferenceManager
-                    .getDefaultSharedPreferences(getBaseContext());
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             String deviceId = sharedPreferences.getString("DeviceId", "-1");
 
             String filename = deviceId + "_" + customerId + "_" + imageId + ".jpg";
@@ -423,6 +432,7 @@ public class CustomerImageGalleryActivity extends Activity {
                     if (checkGalleryDirectory()) {
                         ArrayList<String> requiredImageIds = new ArrayList<String>();
                         requiredImageIds = getRequiredFileNames(customerId);
+
                         if (!requiredImageIds.isEmpty()) {
                             setAdapter(this, requiredImageIds);
                             gViewCustomerImages.setSelected(true);
@@ -443,6 +453,28 @@ public class CustomerImageGalleryActivity extends Activity {
             }
         }
     }
+
+  /*  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+      //  if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
+            selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            iViewCustomerImage.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+
+
+
+      //  }
+    }*/
+
 
     private void getDataFromPreviousActivity() {
         // TODO Auto-generated method stub
@@ -488,9 +520,9 @@ public class CustomerImageGalleryActivity extends Activity {
     private void setAdapter(Activity a, ArrayList<String> requredImageIds) {
         // TODO Auto-generated method stub
         customerImageGalleryAdapter = new CustomerImageGalleryAdapter(a, requredImageIds);
-        gViewCustomerImages.setAdapter(customerImageGalleryAdapter);
-        gViewCustomerImages.setSelected(true);
-        gViewCustomerImages.setSelection(0);
+          gViewCustomerImages.setAdapter(customerImageGalleryAdapter);
+          gViewCustomerImages.setSelected(true);
+          gViewCustomerImages.setSelection(0);
         ArrayList<String> requiredImageIds = new ArrayList<String>();
         requiredImageIds = getRequiredFileNames(customerId);
         if (!requiredImageIds.isEmpty()) {
@@ -667,16 +699,13 @@ public class CustomerImageGalleryActivity extends Activity {
             //  iViewCustomerImage.setImageBitmap(bm);
 
 
-            File customerImageFile = new File(
-                    Environment.getExternalStorageDirectory() + File.separator
-                            + "DCIM" + File.separator + "Channel_Bridge_Images"
-                            + File.separator + imageName);
+            File customerImageFile = new File(Environment.getExternalStorageDirectory() + File.separator
+                    + "DCIM" + File.separator + "Channel_Bridge_Images"
+                    + File.separator + imageName);
 
             if (customerImageFile.exists()) {
-
                 try {
-                    iViewCustomerImage.setImageBitmap(decodeSampledBitmapFromResource(
-                            String.valueOf(customerImageFile), 450, 500));
+                    iViewCustomerImage.setImageBitmap(decodeSampledBitmapFromResource(String.valueOf(customerImageFile), 450, 500));
                 } catch (IllegalArgumentException e) {
                     Log.w("Illegal argument exception", e.toString());
                 } catch (OutOfMemoryError e) {

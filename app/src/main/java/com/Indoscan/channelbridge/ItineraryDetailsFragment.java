@@ -80,6 +80,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class ItineraryDetailsFragment extends Fragment implements LocationListener {
 
@@ -110,10 +111,10 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
     private LocationManager locationManager;
     Location location;
     double lat, lng;
-     EditText txtEditInvoiceRemark;
+    EditText txtEditInvoiceRemark;
     int customertype = 0;
 
-     Dialog invoiceEdit;
+    Dialog invoiceEdit;
 
     public static ItineraryDetailsFragment newInstance(int index, String rowid) {
         ItineraryDetailsFragment itineraryDetailsFragmentObject = new ItineraryDetailsFragment();
@@ -211,7 +212,7 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
         rowID = getArguments().getString("rowIdString");
         customerHandler = new Customers(getActivity().getApplicationContext());
         Log.w("ROW ID SENT FROM ITINERARY LIST", rowID + "");
-          invoiceEdit = new Dialog(getActivity());
+        invoiceEdit = new Dialog(getActivity());
         invoiceEdit.setContentView(R.layout.invoice_edit_popup);
         invoiceEdit.setTitle("Edit Invoice");
         invoiceEdit.setCanceledOnTouchOutside(false);
@@ -230,7 +231,7 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
 //			itinerary.closeDatabase();
 
 
-      //  btnGenerateInvoice.setEnabled(false);
+        //  btnGenerateInvoice.setEnabled(false);
         itineraryStatus();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -258,13 +259,42 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
 
             }
         });
+        iViewCustomerPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String deviceId = sharedPreferences.getString("DeviceId", "-1");
+                String repId = sharedPreferences.getString("RepId", "-1");
 
+                DownloadImage downloadImage = new DownloadImage(getActivity());
+                String imageWithImageId[] = new String[0];
+                try {
+                    imageWithImageId = downloadImage.execute(repId, pharmacyId).get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+
+                if (imageWithImageId.length > 0) {
+                    byte[] image1 = new byte[0];
+
+                    image1 = android.util.Base64.decode(imageWithImageId[0], Base64.DEFAULT);
+                    Bitmap bm = BitmapFactory.decodeByteArray(image1, 0, image1.length);
+                    createDirectoryAndSaveFile(bm, imageWithImageId[1]);
+                    iViewCustomerPic.setImageBitmap(bm);
+
+
+                } else {
+                    iViewCustomerPic.setImageResource(R.drawable.unknown_image);
+                }
+            }
+        });
         btnLastInvoice.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                Intent startLastInvoice = new Intent(
-                        "com.Indoscan.channelbridge.LASTINVOICEACTIVITY");
+                Intent startLastInvoice = new Intent("com.Indoscan.channelbridge.LASTINVOICEACTIVITY");
                 Bundle bundleToView = new Bundle();
                 bundleToView.putString("Id", rowID);
                 bundleToView.putString("PharmacyId", pharmacyId);
@@ -372,7 +402,7 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
                             if (!invoiceData.isEmpty()) {
 
                                 if (customertype == 0) {
-                                   // showDialogSendMessage(getActivity(), 6);
+                                    // showDialogSendMessage(getActivity(), 6);
                                 } else {
                                     boolean statusReturnInvoiceReason = saveInvoice(remarks, timeStamp, RemarksType.RETURN_INVOICE.toString());
                                     if (statusReturnInvoiceReason) {
@@ -762,7 +792,7 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
             if (rowID.contentEquals(lastInvoicedItinerary)) {
                 btnGenerateInvoice.setEnabled(true);
             } else {
-              //  btnGenerateInvoice.setEnabled(false);
+                //  btnGenerateInvoice.setEnabled(false);
             }
         }
     }
@@ -829,25 +859,10 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
                     }
 
                 } else {
-                    //sk image
 
-                    DownloadImage downloadImage = new DownloadImage(this.getActivity());
-                    String imageWithImageId[] = downloadImage.execute(repId, pharmacyId).get();
-
-                    if (imageWithImageId.length > 0) {
-                        byte[] image1 = new byte[0];
-
-                        image1 = android.util.Base64.decode(imageWithImageId[0], Base64.DEFAULT);
-                        Bitmap bm = BitmapFactory.decodeByteArray(image1, 0, image1.length);
-                        iViewCustomerPic.setImageBitmap(bm);
-
-                        createDirectoryAndSaveFile(bm, imageWithImageId[1]);
-                    } else {
-                        iViewCustomerPic.setImageResource(R.drawable.unknown_image);
-                    }
                 }
             } catch (Exception e) {
-                // Log.w("Error setting image file", e.toString());
+
             }
 
         } else if (status.contentEquals("false")) {
@@ -857,7 +872,7 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
             String primaryImage = itnDetails[7];
             pharmacyId = itnDetails[4];
 
-            try {
+         //   try {
 
                 byte[] image = new byte[0];
                 Customers data = new Customers(this.getActivity());
@@ -870,13 +885,9 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
 
 
                 Log.w("Primary Image", primaryImage + "");
-                File customerImageFile = new File(
-                        Environment.getExternalStorageDirectory() + File.separator
-                                + "DCIM" + File.separator + "Channel_Bridge_Images"
-                                + File.separator + primaryImage);
+                File customerImageFile = new File(Environment.getExternalStorageDirectory() + File.separator + "DCIM" + File.separator + "Channel_Bridge_Images" + File.separator + primaryImage);
 
                 if (customerImageFile.exists()) {
-
                     try {
                         iViewCustomerPic.setImageBitmap(decodeSampledBitmapFromResource(
                                 String.valueOf(customerImageFile), 400, 550));
@@ -887,30 +898,12 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
                     }
 
                 } else {
-
-                    //sk image
-
-
-                    DownloadImage downloadImage = new DownloadImage(this.getActivity());
-                    String imageWithImageId[] = downloadImage.execute(repId, pharmacyId).get();
-
-                    if (imageWithImageId.length > 0) {
-                        byte[] image1 = new byte[0];
-                        image1 = android.util.Base64.decode(imageWithImageId[0], Base64.DEFAULT);
-                        Bitmap bm = BitmapFactory.decodeByteArray(image1, 0, image1.length);
-                        createDirectoryAndSaveFile(bm, imageWithImageId[1]);
-                        iViewCustomerPic.setImageBitmap(bm);
-
-
-                    } else {
-                        iViewCustomerPic.setImageResource(R.drawable.unknown_image);
-                    }
-
+                    iViewCustomerPic.setImageResource(R.drawable.unknown_image);
                 }
-            } catch (Exception e) {
-                Log.w("Error setting image file", e.toString());
-                iViewCustomerPic.setImageResource(R.drawable.unknown_image);
-            }
+           // } catch (Exception e) {
+           //     Log.w("Error setting image file", e.toString());
+          //      iViewCustomerPic.setImageResource(R.drawable.unknown_image);
+          //  }
             //			Log.w("Itn DETAILS LEngth", itnDetails.length+"");
 //			Log.w("ITN DETAILS", itnDetails[0]);
 //			Log.w("ITN DETAILS", itnDetails[1]);
@@ -923,54 +916,77 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
             pharmacyId = itnDetails[4];
         }
 
-        String invoDate = new SimpleDateFormat("dd/MM/yyyy")
-                .format(new Date());
-        String xSum = "0";
-        String invoNo = "";
-        if (iswebApprovalActive == false) {
-            xSum = invoHandler.getInvoiceSumforGivenDateAndCustomer(pharmacyId, invoDate);
-            invoNo = invoHandler.getLastInvoiceForFivenDate(pharmacyId, invoDate);
+        String idd = pharmacyId;
+
+        if (pharmacyId == null) {
+            AlertDialog dialog;
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle("Warning");
+            alertDialogBuilder.setCancelable(false);
+            alertDialogBuilder.setMessage("Please download customer master data");
+            alertDialogBuilder.setPositiveButton("OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            Intent syncronizePreferences = new Intent("com.Indoscan.channelbridge.SYNCRONIZEPREFERENCE");
+                            getActivity().finish();
+                            startActivity(syncronizePreferences);
+                        }
+                    });
+            dialog=alertDialogBuilder.create();
+            dialog.show();
+
         } else {
-            String compCode = "";
+            String invoDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+            String xSum = "0";
+            String invoNo = "";
+            if (iswebApprovalActive == false) {
+                xSum = invoHandler.getInvoiceSumforGivenDateAndCustomer(pharmacyId, invoDate);
+                invoNo = invoHandler.getLastInvoiceForFivenDate(pharmacyId, invoDate);
+            } else {
+                String compCode = "";
+                customerHandler.openReadableDatabase();
+                compCode = customerHandler.getCompanyCodeFromPhamcyId(pharmacyId);
+                customerHandler.closeDatabase();
+                xSum = salesHandler.getInvoiceSumforGivenDateAndCustomer(compCode, invoDate);
+                invoNo = salesHandler.getLastInvoiceForGivenDate(compCode, invoDate);
+            }
+            if (xSum.isEmpty() || xSum == null) {
+                xSum = "0";
+            }
+            double dSum = Double.parseDouble(xSum);
+            tViewInvoiceVal.setText(String.format("%.2f", dSum));
+            String sTarget = tViewTarget.getText().toString();
+            if (sTarget.isEmpty() || sTarget.equals("") || sTarget == null) {
+                sTarget = "0";
+            }
+
+            double dTarget = Double.parseDouble(sTarget);
+            double dVariance = 0.00;
+            dVariance = dTarget - dSum;
+            Log.i("vari", "" + dVariance);
+
+
             customerHandler.openReadableDatabase();
-            compCode = customerHandler.getCompanyCodeFromPhamcyId(pharmacyId);
+            String[] selectedCustomer = customerHandler.getCustomerDetailsByPharmacyId(pharmacyId);
             customerHandler.closeDatabase();
-            xSum = salesHandler.getInvoiceSumforGivenDateAndCustomer(compCode, invoDate);
-            invoNo = salesHandler.getLastInvoiceForGivenDate(compCode, invoDate);
-        }
-        if (xSum.isEmpty() || xSum == null) {
-            xSum = "0";
-        }
-        double dSum = Double.parseDouble(xSum);
-        tViewInvoiceVal.setText(String.format("%.2f", dSum));
-        String sTarget = tViewTarget.getText().toString();
-        if (sTarget.isEmpty() || sTarget.equals("") || sTarget == null) {
-            sTarget = "0";
-        }
+            String currCredit = "0";
 
-        double dTarget = Double.parseDouble(sTarget);
-        double dVariance = 0.00;
-        dVariance = dTarget - dSum;
-        Log.i("vari", "" + dVariance);
+            try {
+                currCredit = selectedCustomer[15];
+                tvCurrntCredit.setText(String.format("%.2f", Double.parseDouble(currCredit)));
+            } catch (NullPointerException nul) {
+                currCredit = "0";
+                tvCurrntCredit.setText("0");
+            }
 
+            tvCreditLimit.setText(selectedCustomer[14]);
 
-        customerHandler.openReadableDatabase();
-        String[] selectedCustomer = customerHandler.getCustomerDetailsByPharmacyId(pharmacyId);
-        customerHandler.closeDatabase();
-        String currCredit = "0";
-
-        try {
-            currCredit = selectedCustomer[15];
-            tvCurrntCredit.setText(String.format("%.2f", Double.parseDouble(currCredit)));
-        } catch (NullPointerException nul) {
-            currCredit = "0";
-            tvCurrntCredit.setText("0");
+            tvVariancefr.setText(String.format("%.2f", dVariance));
+            tvInvoiceNumber.setText(invoNo);
         }
 
-        tvCreditLimit.setText(selectedCustomer[14]);
 
-        tvVariancefr.setText(String.format("%.2f", dVariance));
-        tvInvoiceNumber.setText(invoNo);
     }
 
     private void createDirectoryAndSaveFile(Bitmap imageToSave, String fileName) {

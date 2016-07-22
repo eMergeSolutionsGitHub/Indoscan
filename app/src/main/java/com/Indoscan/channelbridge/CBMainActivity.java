@@ -542,8 +542,7 @@ public class CBMainActivity extends Activity implements LocationListener {
             try {
 
                 WebService webService = new WebService();
-                responseArr = webService.getProductRepStoreList(deviceId,
-                        repId, maxRowID);
+                responseArr = webService.getProductRepStoreList(deviceId, repId, maxRowID);
 
                 Thread.sleep(100);
 
@@ -715,8 +714,7 @@ public class CBMainActivity extends Activity implements LocationListener {
             userLogin.openWritableDatabase();
             String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
 
-            String userPassword = new Utility(CBMainActivity.this).encryptString(txtPassword
-                    .getText().toString());
+            String userPassword = new Utility(CBMainActivity.this).encryptString(txtPassword.getText().toString());
 
             long rowId = userLogin.insertLogin(timeStamp, txtUserName.getText()
                     .toString(), "Rep", userPassword, "H", "N", txtDeviceId
@@ -1187,22 +1185,14 @@ public class CBMainActivity extends Activity implements LocationListener {
 
                             publishProgress(4);
 
-                            ArrayList<String[]> productDataResponse = loadProductData(
-                                    params[0], response.get(0));
+                            ArrayList<String[]> productDataResponse = loadProductData(params[0], response.get(0));
                             if (productDataResponse.size() > 0) {
-
                                 publishProgress(5);
-
                                 String productResult = saveProductData(productDataResponse);
-
                                 if (productResult.equals("success")) {
-
                                     publishProgress(8);
-
-                                    ArrayList<String[]> repStoreDataResponse = loadProductRepStoreData(
-                                            params[0], response.get(0), 0);
+                                    ArrayList<String[]> repStoreDataResponse = loadProductRepStoreData(params[0], response.get(0), 0);
                                     if (repStoreDataResponse.size() > 0) {
-
                                         publishProgress(9);
 
                                         String repStoreResult = saveProductRepStoreData(repStoreDataResponse);
