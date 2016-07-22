@@ -230,7 +230,7 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
 //			itinerary.closeDatabase();
 
 
-        btnGenerateInvoice.setEnabled(false);
+      //  btnGenerateInvoice.setEnabled(false);
         itineraryStatus();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         SharedPreferences.Editor editor = preferences.edit();
@@ -762,7 +762,7 @@ public class ItineraryDetailsFragment extends Fragment implements LocationListen
             if (rowID.contentEquals(lastInvoicedItinerary)) {
                 btnGenerateInvoice.setEnabled(true);
             } else {
-                btnGenerateInvoice.setEnabled(false);
+              //  btnGenerateInvoice.setEnabled(false);
             }
         }
     }
